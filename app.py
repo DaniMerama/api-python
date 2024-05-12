@@ -1,5 +1,7 @@
 import numpy as np
 from flask import Flask, jsonify, request
+import uuid
+
 
 try:
     tareas = np.load("tareas.data.npy", allow_pickle=True)
@@ -14,24 +16,36 @@ def hello_world():
     return "Curso Python intermedio"
 
 
+# CRUD Create Read Update Delete
+
+
 @app.route("/tareas", methods=["GET"])
 def obtener_tareas():
     return jsonify(tareas.tolist())
 
 
 # Tarea
-@app.route("/tareas/<int:id_tarea>", methods=["GET"])
+@app.route("/tareas/<string:id_tarea>", methods=["GET"])
 def obtener_tarea_por_id(id_tarea):
-    # Completar lógica para que regrese solo la tarea con el ID
-    # si no existe regresar Tarea NO encontrada
-    return True
+    respuesta = jsonify({"mensaje": "Tarea NO encontrada"})
+    tarea = None
+    for i in range(len(tareas)):
+        item = tareas[i]
+
+        if item["id"] == uuid.UUID(id_tarea):
+            tarea = item
+            break
+    if tarea:
+        respuesta = jsonify(tarea)
+    return respuesta
 
 
 @app.route("/tareas", methods=["POST"])
 def crear_tarea():
     global tareas
     nueva_tarea = request.json
-    nueva_tarea["id"] = len(tareas) + 1
+    # Aqui esta el error
+    nueva_tarea["id"] = uuid.uuid4()
     tareas = np.append(tareas, nueva_tarea)
     np.save("tareas.data", tareas)
     return jsonify({"mensaje": "Tarea creada con éxito"})
@@ -56,7 +70,7 @@ def actualizar_tarea():
     return respuesta
 
 
-@app.route("/tareas/<int:id_tarea>", methods=["DELETE"])
+@app.route("/tareas/<string:id_tarea>", methods=["DELETE"])
 def eliminar_tarea(id_tarea):
     global tareas
     bandera = False
