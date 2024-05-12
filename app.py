@@ -1,6 +1,8 @@
 import numpy as np
 from flask import Flask, jsonify, request
 import uuid
+import time
+from datetime import datetime
 
 
 try:
@@ -14,6 +16,23 @@ app = Flask(__name__)
 @app.route("/")
 def hello_world():
     return "Curso Python intermedio"
+
+
+# Timestamp Endpoints
+
+
+# Aqui obtenemos el tiempo de ahora mismo en numero
+@app.route("/timestamp")
+def get_timestamp():
+    now = time.time()
+    return jsonify(int(now))
+
+
+# Aqui convertimos un numero a fecha
+@app.route("/timestamp/print/<int:timestamp>")
+def print_timestamp(timestamp):
+    date_object = datetime.fromtimestamp(timestamp)
+    return jsonify(date_object)
 
 
 # CRUD Create Read Update Delete
